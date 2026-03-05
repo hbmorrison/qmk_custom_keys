@@ -3,11 +3,6 @@
     "maintainer": "hbmorrison",
     "license": "Apache-2.0",
     "url": "https://github.com/hbmorrison/qmk_custom_keys.git",
-    "features": {
-      "caps_word": {
-        "enable": true
-      }
-    },
     "keycodes": [
         { "key": "CUSTOM_KEY_VIM_COMMAND", "aliases": ["CK_VC"] },
         { "key": "CUSTOM_KEY_SSH_SUSPEND", "aliases": ["CK_SS"] }
