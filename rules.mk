@@ -1,3 +1,5 @@
+# Features required by the custom keys module.
+
 AUTO_SHIFT_ENABLE = yes
 CAPS_WORD_ENABLE = yes
 

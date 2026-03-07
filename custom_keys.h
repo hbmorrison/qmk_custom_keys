@@ -46,7 +46,7 @@
 // rules.mk file in the user keymap, if the auto shift functions do not need
 // further customisation.
 
-bool caps_word_press_custom_keys(uint16_t);
-bool get_custom_auto_shifted_key_custom_keys(uint16_t, keyrecord_t *);
-void autoshift_press_custom_keys(uint16_t, bool, keyrecord_t *);
-void autoshift_release_custom_keys(uint16_t, bool, keyrecord_t *);
+bool custom_keys_caps_word_press_user(uint16_t);
+bool custom_keys_get_custom_auto_shifted_key(uint16_t, keyrecord_t *);
+void custom_keys_autoshift_press_user(uint16_t, bool, keyrecord_t *);
+void custom_keys_autoshift_release_user(uint16_t, bool, keyrecord_t *);
