@@ -14,49 +14,54 @@
 
 #include "custom_keys.h"
 
+// The CK_SYMBOL_ keycodes are defined to be the correct keycodes for either US or
+// international layouts.
+
 #ifdef CUSTOM_KEYS_US_LAYOUT
-#  define CK_SYMBOL_TILD  KC_TILD
-#  define CK_SYMBOL_GRV   KC_GRV
-#  define CK_SYMBOL_PIPE  KC_PIPE
-#  define CK_SYMBOL_BSLS  KC_BSLS
+#  define CK_SYMBOL_TILD KC_TILD
+#  define CK_SYMBOL_GRV  KC_GRV
+#  define CK_SYMBOL_PIPE KC_PIPE
+#  define CK_SYMBOL_BSLS KC_BSLS
 #else
-#  define CK_SYMBOL_TILD  S(KC_NUBS)
-#  define CK_SYMBOL_GRV   KC_NUBS
-#  define CK_SYMBOL_PIPE  S(KC_BSLS)
-#  define CK_SYMBOL_BSLS  KC_BSLS
+#  define CK_SYMBOL_TILD S(KC_NUBS)
+#  define CK_SYMBOL_GRV  KC_NUBS
+#  define CK_SYMBOL_PIPE S(KC_BSLS)
+#  define CK_SYMBOL_BSLS KC_BSLS
 #endif
 
-// Because custom auto shift behaviour is attached to the DQUO key press, the
-// CK_AT and CK_DQUO custom keycodes must be swapped for international layouts
-// so that the auto shift behaviour is associated with the correct key on the
-// keyboard. In order for the correct symbols to be output from auto shift, the
-// keycodes for CK_SYMBOL_AT and CK_SYMBOL_DQUO also need to be swapped.
+// Because custom auto shift behaviour is attached to the double quote key, the
+// CK_AT and CK_DQUO custom keycodes defined by this module must be swapped for
+// international layouts, so that the auto shift behaviour is associated with
+// the correct key on the keyboard. However, in order to issue the correct
+// symbols, the keycodes for the at sign and double quote symbols must also be
+// swapped, so CK_DETECT_AT and CK_DETECT_DQUO have the correct custom keycodes
+// for detection and CK_CK_ISSUE_AT and CK_CK_ISSUE_DQUO have the correct
+// keycodes to issue.
 //
-// This is mind-bendingly idiotic but it works. The alternative would be to name
-// the custom key codes in this module after key positions rather than US
-// keycodes. Then CK_LEFTSIDE_TOP_MIDDLE would always issue CK_SYMBOL_AT and
-// CK_RIGHTSIDE_MIDDLE_MIDDLE would always issue CK_SYMBOL_DQUO, with the
-// additional behaviour attached to CK_RIGHTSIDE_MIDDLE_MIDDLE. But we want the
-// keymap layouts that appear in keymap.c to look meaningful, so being able to
-// put CK_AT in the middle of the top row on the left side makes much more
-// sense. Unfortunately, it also leads to these shenanigans.
+// This seems unneccessary but it is needed and it works. It might be better to
+// name the custom key codes defined by this module after key positions rather
+// than the equivalent US keycode, but that would make the keymap layouts that
+// appear in keymap.c less readable: CK_AT appearing in the middle of the top
+// row on the left side makes more sense than CK_LEFT_TOP_MIDDLE. The other
+// alternative would be to give the at sign the same behaviour, so long presses
+// issue @@.
 
 #ifdef CUSTOM_KEYS_US_LAYOUT
-#  define CK_AUTOSHIFT_AT   CK_AT
-#  define CK_AUTOSHIFT_DQUO CK_DQUO
-#  define CK_SYMBOL_AT      KC_AT
-#  define CK_SYMBOL_DQUO    KC_DQUO
+# define CK_DETECT_AT   CK_AT
+# define CK_DETECT_DQUO CK_DQUO
+# define CK_ISSUE_AT      KC_AT
+# define CK_ISSUE_DQUO    KC_DQUO
 #else
-#  define CK_AUTOSHIFT_AT   CK_DQUO
-#  define CK_AUTOSHIFT_DQUO CK_AT
-#  define CK_SYMBOL_AT      S(KC_QUOT)
-#  define CK_SYMBOL_DQUO    S(KC_2)
+# define CK_DETECT_AT   CK_DQUO
+# define CK_DETECT_DQUO CK_AT
+# define CK_ISSUE_AT      S(KC_QUOT)
+# define CK_ISSUE_DQUO    S(KC_2)
 #endif
 
 // Declare internal functions.
 
-bool custom_keys_autoshift_press_symbols(uint16_t, bool, keyrecord_t *);
-bool custom_keys_autoshift_release_symbols(uint16_t, bool, keyrecord_t *);
+bool custom_keys_autoshift_press_us_intl(uint16_t, bool, keyrecord_t *);
+bool custom_keys_autoshift_release_us_intl(uint16_t, bool, keyrecord_t *);
 
 // Process custom macros.
 
@@ -209,9 +214,9 @@ bool custom_keys_get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *reco
       return true;
   }
 
-  // Auto shift any layer-tap keys so that auto shift will work.
+  // Auto shift any mod-tap and layer-tap keys so that auto shift will work.
 
-  if (IS_QK_LAYER_TAP(keycode))
+  if (IS_RETRO(keycode))
     return true;
 
   // No other custom auto shift keys.
@@ -223,9 +228,10 @@ bool custom_keys_get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *reco
 
 void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
 
-  // Process custom symbol key presses.
+  // Process key presses for the custom symbol keys added by this module to
+  // issue either US or international symbols.
 
-  if (custom_keys_autoshift_press_symbols(keycode, shifted, record))
+  if (custom_keys_autoshift_press_us_intl(keycode, shifted, record))
     return;
 
   // If the custom key is not shifted, register the key press and return. Only
@@ -241,7 +247,8 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
 
   switch (keycode) {
 
-    // Issue [], (), {} When left brace, parenthesis and curly brace is shifted.
+    // Issue [], () or {} respectively when the left brace, parenthesis or curly
+    // brace keys are shifted.
 
     case KC_LBRC:
     case KC_LPRN:
@@ -255,7 +262,7 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
       }
       break;
 
-    // Issue ${} when dollar is shifted.
+    // Issue ${} when the dollar key is shifted.
 
     case KC_DLR:
       if (shifted) {
@@ -268,7 +275,7 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
       }
       break;
 
-    // Issue '' when quote is shifted.
+    // Issue '' when the single quote key is shifted.
 
     case KC_QUOT:
       if (shifted) {
@@ -280,7 +287,7 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
       }
       break;
 
-    // Issue => when equal is shifted.
+    // Issue => when the equals key is shifted.
 
     case KC_EQL:
       if (shifted) {
@@ -292,8 +299,9 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
       }
       break;
 
-    // By default, add a weak shift modifier and only register the lower eight
-    // bits of the keycode if the key is retro tap.
+    // Add a weak shift modifier and remove the higher bits added to the keycode
+    // by mod tap and layer tap before issuing the key press, so that auto shift
+    // will work.
 
     default:
       if (shifted)
@@ -302,16 +310,24 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
   }
 }
 
-// The custom keys version of autoshift_release_user().
+// The custom keys version of autoshift_release_user(). Should be called from
+// autoshift_release_user() in keymap.c, or by defining 
 
 void custom_keys_autoshift_release_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
 
   // Process custom symbol key releases.
+  // Process key presses for the custom symbol keys added by this module to
+  // issue either US or international symbols.
 
-  if (custom_keys_autoshift_release_symbols(keycode, shifted, record))
+
+  if (custom_keys_autoshift_release_us_intl(keycode, shifted, record))
     return;
 
   switch (keycode) {
+
+    // Issue the key release for the keys with custom auto shifts if there was
+    // no auto shift behaviour.
+
     case KC_LBRC:
     case KC_LPRN:
     case KC_LCBR:
@@ -322,27 +338,28 @@ void custom_keys_autoshift_release_user(uint16_t keycode, bool shifted, keyrecor
         unregister_code16(keycode);
       break;
 
-    // By default, add a weak shift modifier and only register the lower eight
-    // bits of the keycode if the key is retro tap.
+    // Remove the higher bits added to the keycode by mod tap and layer tap
+    // before issuing the key release, so that auto shift will work.
 
     default:
       unregister_code16((IS_RETRO(keycode)) ? keycode & 0xFF : keycode);
   }
 }
 
-// This translates the custom symbol keycodes into either US or international
-// symbol keycodes when a custom key is pressed. Double quotes also have a
-// custom auto shift.
+// Translates the custom symbol keycodes added by this module into either US or
+// international symbol keycodes when the key is pressed. The double quote key also
+// has a custom auto shift, so that it behave in the same way as the single
+// quote key.
 
-bool custom_keys_autoshift_press_symbols(uint16_t keycode, bool shifted, keyrecord_t *record) {
+bool custom_keys_autoshift_press_us_intl(uint16_t keycode, bool shifted, keyrecord_t *record) {
   switch (keycode) {
-    case CK_AUTOSHIFT_AT:
-      register_code16(CK_SYMBOL_AT);
+    case CK_DETECT_AT:
+      register_code16(CK_ISSUE_AT);
       return true;
-    case CK_AUTOSHIFT_DQUO:
+    case CK_DETECT_DQUO:
       if (shifted)
-        tap_code16(CK_SYMBOL_DQUO);
-      register_code16(CK_SYMBOL_DQUO);
+        tap_code16(CK_ISSUE_DQUO);
+      register_code16(CK_ISSUE_DQUO);
       return true;
     case CK_GRV:
       register_code16(CK_SYMBOL_GRV);
@@ -363,17 +380,17 @@ bool custom_keys_autoshift_press_symbols(uint16_t keycode, bool shifted, keyreco
   return false;
 }
 
-// This translates the custom symbol keycodes into either US or international
-// symbol keycodes when a custom key is released. Double quotes also have a
-// custom auto shift.
+// this translates the custom symbol keycodes created by this module into either
+// us or international symbol keycodes when a custom key is released. double
+// quotes also have a custom auto shift.
 
-bool custom_keys_autoshift_release_symbols(uint16_t keycode, bool shifted, keyrecord_t *record) {
+bool custom_keys_autoshift_release_us_intl(uint16_t keycode, bool shifted, keyrecord_t *record) {
   switch (keycode) {
-    case CK_AUTOSHIFT_AT:
-      unregister_code16(CK_SYMBOL_AT);
+    case CK_DETECT_AT:
+      unregister_code16(CK_ISSUE_AT);
       return true;
-    case CK_AUTOSHIFT_DQUO:
-      unregister_code16(CK_SYMBOL_DQUO);
+    case CK_DETECT_DQUO:
+      unregister_code16(CK_ISSUE_DQUO);
       if (shifted)
         tap_code16(KC_LEFT);
       return true;
@@ -398,13 +415,13 @@ bool custom_keys_autoshift_release_symbols(uint16_t keycode, bool shifted, keyre
 
 // The following functions are usually defined within keymap.c to add custom
 // behavious. They appear here because auto shift and caps word are not part of
-// the QMK module API. Define CUSTOM_KEYS_USER_FUNCTIONS in the keymap config.h
-// if no further auto shift or caps word customisation is required. If the
-// keymap uses any of these functions for customisation, add calls to the
+// the QMK module API. Define CUSTOM_KEYS_INCLUDE_USER_FUNCTIONS in the keymap
+// config.h if no further auto shift or caps word customisation is required. If
+// the keymap uses any of these functions for customisation, add calls to the
 // custom_keys_...() functions from all four user functions defined in keymap.c
 // to maintain the custom keys functionality.
 
-#ifdef CUSTOM_KEYS_USER_FUNCTIONS
+#ifdef CUSTOM_KEYS_INCLUDE_USER_FUNCTIONS
 bool caps_word_press_user(uint16_t keycode) {
   return custom_keys_caps_word_press_user(keycode);
 }
