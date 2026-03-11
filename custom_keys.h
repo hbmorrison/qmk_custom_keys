@@ -16,24 +16,6 @@
 
 #include QMK_KEYBOARD_H
 
-// Aliases for cut, copy and paste.
-
-#define A_CX RCTL(KC_X)
-#define A_CC RCTL(KC_C)
-#define A_CV RCTL(KC_V)
-
-// 1Password shortcuts for quick access and auto type.
-
-#define P_QA C(S(KC_SPC))
-#define P_AT S(KC_ENT)
-
-// Aliases for Windows previous and next tab / desktop.
-
-#define W_PT C(S(KC_TAB))
-#define W_NT C(KC_TAB)
-#define W_PD C(G(KC_LEFT))
-#define W_ND C(G(KC_RIGHT))
-
 // These functions should be called from the equivalent _user() functions in
 // keymap.c because the QMK module API does not support auto shift or caps word.
 // If the keymap odes not need further caps word or auto shift cusomisation,

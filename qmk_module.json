@@ -4,13 +4,15 @@
     "license": "Apache-2.0",
     "url": "https://github.com/hbmorrison/qmk_custom_keys.git",
     "keycodes": [
-        { "key": "CUSTOM_KEY_VIM_COMMAND", "aliases": ["CK_VC"] },
-        { "key": "CUSTOM_KEY_SSH_SUSPEND", "aliases": ["CK_SS"] },
-        { "key": "CUSTOM_KEY_AT",          "aliases": ["CK_AT"] },
-        { "key": "CUSTOM_KEY_DQUO",        "aliases": ["CK_DQUO"] },
-        { "key": "CUSTOM_KEY_TILD",        "aliases": ["CK_TILD"] },
-        { "key": "CUSTOM_KEY_GRV",         "aliases": ["CK_GRV"] },
-        { "key": "CUSTOM_KEY_BSLS",        "aliases": ["CK_BSLS"] },
-        { "key": "CUSTOM_KEY_PIPE",        "aliases": ["CK_PIPE"] }
+        { "key": "CUSTOM_KEY_VIM_COMMAND",         "aliases": ["CK_VCMD"] },
+        { "key": "CUSTOM_KEY_SSH_SUSPEND",         "aliases": ["CK_SSHS"] },
+        { "key": "CUSTOM_KEY_ONEPASS_QUICKACCESS", "aliases": ["CK_OPQA"] },
+        { "key": "CUSTOM_KEY_ONEPASS_AUTOTYPE",    "aliases": ["CK_OPAT"] },
+        { "key": "CUSTOM_KEY_AT",                  "aliases": ["CK_AT"] },
+        { "key": "CUSTOM_KEY_DQUO",                "aliases": ["CK_DQUO"] },
+        { "key": "CUSTOM_KEY_TILD",                "aliases": ["CK_TILD"] },
+        { "key": "CUSTOM_KEY_GRV",                 "aliases": ["CK_GRV"] },
+        { "key": "CUSTOM_KEY_BSLS",                "aliases": ["CK_BSLS"] },
+        { "key": "CUSTOM_KEY_PIPE",                "aliases": ["CK_PIPE"] }
     ]
 }

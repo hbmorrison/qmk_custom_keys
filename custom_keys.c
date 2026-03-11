@@ -72,7 +72,7 @@ bool custom_keys_process_record_user(uint16_t keycode, keyrecord_t *record) {
       // Send the Vim command sequence - esc then colon - and immediately return
       // false to indicate that no further processing is required.
 
-      case CK_VC:
+      case CK_VCMD:
         tap_code16(KC_ESC);
         wait_ms(100);
         tap_code16(KC_COLN);
@@ -81,10 +81,21 @@ bool custom_keys_process_record_user(uint16_t keycode, keyrecord_t *record) {
       // Send the SSH suspend sequence and immediately return false to indicate
       // that no further processing is required.
 
-      case CK_SS:
+      case CK_SSHS:
         tap_code16(KC_ENT);
         tap_code16(KC_PIPE);
         tap_code16(RCTL(KC_Z));
+        return false;
+
+      // Send the keyboard shortcuts for 1Password quick access and auto type,
+      // and immediately return false to indicate that no further processing is
+      // required.
+
+      case CK_OPQA:
+        tap_code16(LSFT(LCTL(KC_SPC)));
+        return false;
+      case CK_OPAT:
+        tap_code16(LSFT(KC_ENT));
         return false;
     }
   }
