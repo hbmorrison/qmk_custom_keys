@@ -169,6 +169,12 @@ bool custom_keys_get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *reco
     case KC_ENT:
       return true;
 
+    // Auto shift left and right arrow keys to issue home and end.
+
+    case KC_LEFT:
+    case KC_RIGHT:
+      return true;
+
     // Auto shift left brace, parenthesis and curly brace to issue [],() or {}
     // as custom auto shifts.
 
@@ -236,6 +242,19 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
   // Handle custom key behaviour.
 
   switch (keycode) {
+
+    // Issue home and end when left and right arrow keys are shifted.
+
+    case KC_LEFT:
+      if (shifted)
+        register_code16(KC_HOME);
+      else
+        register_code16(KC_LEFT);
+    case KC_RIGHT:
+      if (shifted)
+        register_code16(KC_END);
+      else
+        register_code16(KC_RIGHT);
 
     // Issue [], () or {} respectively when the left brace, parenthesis or curly
     // brace keys are shifted.
@@ -314,6 +333,19 @@ void custom_keys_autoshift_release_user(uint16_t keycode, bool shifted, keyrecor
     return;
 
   switch (keycode) {
+
+    // Issue the key releases for left and right arrow keys.
+
+    case KC_LEFT:
+      if (shifted)
+        unregister_code16(KC_HOME);
+      else
+        unregister_code16(KC_LEFT);
+    case KC_RIGHT:
+      if (shifted)
+        unregister_code16(KC_END);
+      else
+        unregister_code16(KC_RIGHT);
 
     // Issue the key release for the keys with custom auto shifts if there was
     // no auto shift behaviour.
