@@ -14,6 +14,8 @@
 
 #pragma once
 
+// Include the standard QMK headers.
+
 #include QMK_KEYBOARD_H
 
 // The CK_SYMBOL_ keycodes are defined to be the correct keycodes for either US or
