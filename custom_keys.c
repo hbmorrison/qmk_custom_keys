@@ -25,7 +25,7 @@ static bool ck_shift_backspace_pressed = false;
 
 // Process custom macros.
 
-bool custom_keys_process_record_user(uint16_t keycode, keyrecord_t *record) {
+bool process_record_custom_keys(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     switch (keycode) {
 
