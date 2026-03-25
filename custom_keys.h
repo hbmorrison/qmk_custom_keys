@@ -64,7 +64,7 @@
 
 // These functions should be called from the equivalent _user() functions in
 // keymap.c because the QMK module API does not support auto shift or caps word.
-// If the keymap odes not need further caps word or auto shift cusomisation,
+// If the keymap does not need further caps word or auto shift customisation,
 // this can be accomplished by defining CUSTOM_KEYS_INCLUDE_USER_FUNCTIONS in
 // the keymap config.h file.
 

@@ -156,17 +156,22 @@ bool custom_keys_caps_word_press_user(uint16_t keycode) {
 bool custom_keys_get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
 
+    // Auto shift space and enter to help with 1Password shortcuts.
+
+    case KC_SPC:
+    case KC_ENT:
+      return true;
+
+    // Auto shift esc to issue esc + :.
+
+    case KC_ESC:
+      return true;
+
     // Auto shift the symbol keys present in the base layer.
 
     case KC_COMM:
     case KC_DOT:
     case KC_SLSH:
-      return true;
-
-    // Auto shift space and enter keys to help with 1Password shortcuts.
-
-    case KC_SPC:
-    case KC_ENT:
       return true;
 
     // Auto shift left and right arrow keys to issue home and end.
@@ -243,6 +248,26 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
 
   switch (keycode) {
 
+    // Auto shift space to issue ctrl-shift-space.
+
+    case KC_SPC:
+      if (shifted)
+        add_weak_mods(MOD_BIT(KC_LSFT) | MOD_BIT(KC_LCTL));
+      register_code16(KC_SPC);
+      break;
+
+    // Auto shift esc to issue esc + :.
+
+    case KC_ESC:
+      if (shifted) {
+        tap_code16(KC_ESC);
+        wait_ms(100);
+        tap_code16(KC_COLN);
+      } else {
+        register_code16(KC_ESC);
+      }
+      break;
+
     // Issue home and end when left and right arrow keys are shifted.
 
     case KC_LEFT:
@@ -250,11 +275,13 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
         register_code16(KC_HOME);
       else
         register_code16(KC_LEFT);
+      break;
     case KC_RIGHT:
       if (shifted)
         register_code16(KC_END);
       else
         register_code16(KC_RIGHT);
+      break;
 
     // Issue [], () or {} respectively when the left brace, parenthesis or curly
     // brace keys are shifted.
@@ -324,15 +351,28 @@ void custom_keys_autoshift_press_user(uint16_t keycode, bool shifted, keyrecord_
 
 void custom_keys_autoshift_release_user(uint16_t keycode, bool shifted, keyrecord_t *record) {
 
-  // Process custom symbol key releases.
   // Process key presses for the custom symbol keys added by this module to
   // issue either US or international symbols.
-
 
   if (custom_keys_autoshift_release_us_intl(keycode, shifted, record))
     return;
 
+  // Process custom symbol key releases.
+
   switch (keycode) {
+
+    // Space needs to be unregistered whether shifted or not.
+
+    case KC_SPC:
+      unregister_code16(keycode);
+      break;
+
+    // Issue the unshifted esc key release.
+
+    case KC_ESC:
+      if (! shifted)
+        unregister_code16(KC_ESC);
+      break;
 
     // Issue the key releases for left and right arrow keys.
 
@@ -341,11 +381,13 @@ void custom_keys_autoshift_release_user(uint16_t keycode, bool shifted, keyrecor
         unregister_code16(KC_HOME);
       else
         unregister_code16(KC_LEFT);
+      break;
     case KC_RIGHT:
       if (shifted)
         unregister_code16(KC_END);
       else
         unregister_code16(KC_RIGHT);
+      break;
 
     // Issue the key release for the keys with custom auto shifts if there was
     // no auto shift behaviour.
